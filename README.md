@@ -1,21 +1,13 @@
-# AegisCloud: Enterprise Self-Healing EC2 & Business Continuity Portal
+# Self-Healing EC2 Physical Reset (Cloud Software Edition)
 
-An autonomous, cloud-native self-healing compute infrastructure deployed on Amazon Web Services (AWS) featuring an interactive **Business Continuity & Chaos Engineering Control Portal**.
+A zero-downtime B2B business continuity and automated infrastructure recovery platform built on AWS EC2, Auto Scaling Groups, and Linux `systemd`.
 
-## 📌 Business & Architecture Highlights
-- **Enterprise Business Portal (Python Flask + Boto3):** Real-time web dashboard tracking **99.99% SLA**, **Recovery Time Objective (RTO < 2s)**, and **$4,500/hr Downtime Loss Saved**.
-- **Interactive Chaos Engineering Controls:**
-  - **Simulate Hardware Crash (Terminate Node):** Web button invoking `ec2:TerminateInstances` via `LabInstanceProfile` IAM permissions to test live failover.
-  - **Simulate Traffic Spike (CPU Load Test):** Injects a 5-second high-CPU burst to validate workload resilience.
-  - **Refresh Node Telemetry:** Queries IMDSv2 session tokens for live Instance ID and Availability Zone placement.
-- **Self-Healing Engine:** AWS Auto Scaling Group (`self-healing-asg`) spanning `us-east-1a` and `us-east-1b` (`Desired=1, Min=1, Max=1`).
-- **Audit Telemetry:** Amazon EventBridge rule (`ec2-healing-event-rule`) streaming state changes (`shutting-down` -> `terminated` -> `running`) into CloudWatch Log Group (`/aws/events/self-healing-ec2`).
+## Overview
+Replaces physical hardware reset buttons (ESP32/LED) with a pure cloud-native, two-layer self-healing architecture:
+- **Storefront & Virtual Reset Console (`web_portal.py`, Port 80):** Decoupled B2B checkout portal with light/dark mode, revenue protection KPIs, live transaction ledger, and IMDSv2 EC2 metadata lookup.
+- **Payment Settlement Microservice (`order_engine.py`, Port 8080):** Isolated backend worker settling customer transactions independently of the web tier.
+- **Layer 1 Virtual Reset (~0.05s MTTR):** Detects `SIGKILL` process crashes, pauses checkouts safely without dropping the storefront, and spawns a fresh worker PID on click.
+- **Layer 2 AWS Auto Scaling Failover (~45s):** Terminates unhealthy EC2 hosts via AWS CLI while `self-healing-asg` automatically provisions and bootstraps a replacement instance.
 
-## 🚀 Repository Structure
-- `app.py`: Python Flask backend API and dark-mode Business Continuity Dashboard UI.
-- `user_data.sh`: Automated EC2 Launch Template bootstrap script (`v4`).
-- `trigger_reset.sh`: CLI chaos failure injection utility.
-- `README.md`: System architecture and business impact documentation.
-
----
-*Developed by Shital Kumari (2503a520r2, Batch 67) for Course 25CAI102PC205 - Cloud Computing, SR University.*
+## Deployment
+Upload `order_engine.py`, `web_portal.py`, and `deploy_all.sh` to AWS CloudShell (`us-east-1`) and run `bash deploy_all.sh`.
